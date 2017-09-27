@@ -2,6 +2,7 @@ package gorocksdb
 
 // #include "rocksdb/c.h"
 import "C"
+import "fmt"
 
 // A SliceTransform can be used as a prefix extractor.
 type SliceTransform interface {
@@ -47,6 +48,7 @@ func registerSliceTransform(st SliceTransform) int {
 
 //export gorocksdb_slicetransform_transform
 func gorocksdb_slicetransform_transform(idx int, cKey *C.char, cKeyLen C.size_t, cDstLen *C.size_t) *C.char {
+	fmt.Println("Do transform")
 	key := charToByte(cKey, cKeyLen)
 	dst := sliceTransforms[idx].Transform(key)
 	*cDstLen = C.size_t(len(dst))
@@ -55,6 +57,7 @@ func gorocksdb_slicetransform_transform(idx int, cKey *C.char, cKeyLen C.size_t,
 
 //export gorocksdb_slicetransform_in_domain
 func gorocksdb_slicetransform_in_domain(idx int, cKey *C.char, cKeyLen C.size_t) C.uchar {
+	fmt.Println("Check indomain")
 	key := charToByte(cKey, cKeyLen)
 	inDomain := sliceTransforms[idx].InDomain(key)
 	return boolToChar(inDomain)
@@ -62,6 +65,7 @@ func gorocksdb_slicetransform_in_domain(idx int, cKey *C.char, cKeyLen C.size_t)
 
 //export gorocksdb_slicetransform_in_range
 func gorocksdb_slicetransform_in_range(idx int, cKey *C.char, cKeyLen C.size_t) C.uchar {
+	fmt.Println("Ceck in range")
 	key := charToByte(cKey, cKeyLen)
 	inRange := sliceTransforms[idx].InRange(key)
 	return boolToChar(inRange)
@@ -69,5 +73,6 @@ func gorocksdb_slicetransform_in_range(idx int, cKey *C.char, cKeyLen C.size_t) 
 
 //export gorocksdb_slicetransform_name
 func gorocksdb_slicetransform_name(idx int) *C.char {
+	fmt.Println("Transforming name for for:", sliceTransforms[idx])
 	return stringToChar(sliceTransforms[idx].Name())
 }
