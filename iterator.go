@@ -3,6 +3,7 @@ package gorocksdb
 // #include <stdlib.h>
 // #include "rocksdb/c.h"
 // #include "gorocksdb.h"
+// #include "lib/hello.h"
 import "C"
 import (
 	"bytes"
@@ -84,24 +85,43 @@ func (iter *Iterator) Next() {
 var ManyKeysPageAllocSize int = 512
 
 type ManyKeys struct {
-	c *C.gorocksdb_many_keys_t
+	c    *C.gorocksdb_many_keys_t
+	rust *C.rust_rocksdb_many_keys_t
 }
 
 func (m *ManyKeys) Destroy() {
-	C.gorocksdb_destroy_many_keys(m.c)
+	if m.c != nil {
+		C.gorocksdb_destroy_many_keys(m.c)
+	}
+	if m.rust != nil {
+		//C.rust_rocksdb_destroy_many_keys(m.c)
+	}
 }
 
 func (m *ManyKeys) Found() int {
-	return int(m.c.found)
+	if m.c != nil {
+		return int(m.c.found)
+	}
+	return int(m.rust.found)
 }
 
 func (m *ManyKeys) Keys() [][]byte {
 	found := m.Found()
+	var cKeys **C.char
+	var cKeySizes *C.size_t
+	if m.c != nil {
+		cKeys = m.c.keys
+		cKeySizes = m.c.key_sizes
+	} else {
+		cKeys = m.rust.keys
+		cKeySizes = m.rust.key_sizes
+	}
+
 	keys := make([][]byte, found)
 
 	for i := uintptr(0); i < uintptr(found); i++ {
-		chars := *(**C.char)(unsafe.Pointer(uintptr(unsafe.Pointer(m.c.keys)) + i*unsafe.Sizeof(m.c.keys)))
-		size := *(*C.size_t)(unsafe.Pointer(uintptr(unsafe.Pointer(m.c.key_sizes)) + i*unsafe.Sizeof(m.c.key_sizes)))
+		chars := *(**C.char)(unsafe.Pointer(uintptr(unsafe.Pointer(cKeys)) + i*unsafe.Sizeof(cKeys)))
+		size := *(*C.size_t)(unsafe.Pointer(uintptr(unsafe.Pointer(cKeySizes)) + i*unsafe.Sizeof(cKeySizes)))
 		keys[i] = charToByte(chars, size)
 
 	}
@@ -111,10 +131,19 @@ func (m *ManyKeys) Keys() [][]byte {
 func (m *ManyKeys) Values() [][]byte {
 	found := m.Found()
 	values := make([][]byte, found)
+	var cValues **C.char
+	var cValueSizes *C.size_t
+	if m.c != nil {
+		cValues = m.c.values
+		cValueSizes = m.c.value_sizes
+	} else {
+		cValues = m.rust.values
+		cValueSizes = m.rust.value_sizes
+	}
 
 	for i := uintptr(0); i < uintptr(found); i++ {
-		chars := *(**C.char)(unsafe.Pointer(uintptr(unsafe.Pointer(m.c.values)) + i*unsafe.Sizeof(m.c.values)))
-		size := *(*C.size_t)(unsafe.Pointer(uintptr(unsafe.Pointer(m.c.value_sizes)) + i*unsafe.Sizeof(m.c.value_sizes)))
+		chars := *(**C.char)(unsafe.Pointer(uintptr(unsafe.Pointer(cValues)) + i*unsafe.Sizeof(cValues)))
+		size := *(*C.size_t)(unsafe.Pointer(uintptr(unsafe.Pointer(cValueSizes)) + i*unsafe.Sizeof(cValueSizes)))
 		values[i] = charToByte(chars, size)
 	}
 	return values
@@ -159,6 +188,20 @@ func (iter *Iterator) NextManyKeysF(limit int, keyPrefix, keyEnd []byte) *ManyKe
 		cKeyFilter.key_end_s = C.size_t(len(keyEnd))
 	}
 	return &ManyKeys{c: C.gorocksdb_iter_next_many_keys_f(iter.c, C.int(limit), &cKeyFilter, C.int(ManyKeysPageAllocSize))}
+}
+
+func (iter *Iterator) RustNextManyKeysF(limit int, keyPrefix, keyStop []byte) *ManyKeys {
+	result := C.rust_rocksdb_iter_next_many_keys_f(
+		iter.c,
+		C.int(limit),
+		C.rust_rocksdb_many_keys_filter_t{
+			key_prefix:      byteToChar(keyPrefix),
+			key_prefix_size: C.size_t(len(keyPrefix)),
+			key_stop:        byteToChar(keyStop),
+			key_stop_size:   C.size_t(len(keyStop)),
+		},
+	)
+	return &ManyKeys{rust: &result}
 }
 
 type KeysSearch struct {

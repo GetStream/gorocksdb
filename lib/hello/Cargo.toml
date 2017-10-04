@@ -1,0 +1,10 @@
+[package]
+name = "hello"
+version = "0.1.0"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+libc = "0.2.2"
+# rocksdb = "0.8.1"

@@ -47,7 +47,7 @@ func TestDBCRUD(t *testing.T) {
 	ensure.True(t, v3.Data() == nil)
 }
 
-func newTestDB(t *testing.T, name string, applyOpts func(opts *Options)) *DB {
+func newTestDB(t testing.TB, name string, applyOpts func(opts *Options)) *DB {
 	dir, err := ioutil.TempDir("", "gorocksdb-"+name)
 	ensure.Nil(t, err)
 
