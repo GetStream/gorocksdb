@@ -1,6 +1,5 @@
 package gorocksdb
 
-// #include "stdlib.h"
 import "C"
 import (
 	"reflect"
@@ -38,37 +37,6 @@ func byteToChar(b []byte) *C.char {
 		c = (*C.char)(unsafe.Pointer(&b[0]))
 	}
 	return c
-}
-
-// bytesSliceToArray converts a slice of byte slices to two C arrays. One
-// containing pointers to the byte slices and one containing their sizes.
-// IMPORTANT: The **C.char array is malloced and should be freed using
-// freeCharsArray after it is used.
-func bytesSliceToArray(vals [][]byte) (**C.char, *C.size_t) {
-	if len(vals) == 0 {
-		return nil, nil
-	}
-
-	chars := make([]*C.char, len(vals))
-	sizes := make([]C.size_t, len(vals))
-	for i, val := range vals {
-		chars[i] = byteToChar(val)
-		sizes[i] = C.size_t(len(val))
-	}
-
-	cCharBuf := C.malloc(C.size_t(unsafe.Sizeof(chars[0])) * C.size_t(len(chars)))
-	copy(((*[1 << 32]*C.char)(cCharBuf))[:], chars)
-
-	cChars := (**C.char)(cCharBuf)
-
-	cSizes := (*C.size_t)(unsafe.Pointer(&sizes[0]))
-	return cChars, cSizes
-
-}
-
-// freeCharsArray frees a **C.char that is malloced by this library itself.
-func freeCharsArray(charsArray **C.char) {
-	C.free(unsafe.Pointer(charsArray))
 }
 
 // Go []byte to C string
