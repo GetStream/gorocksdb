@@ -103,7 +103,7 @@ func (opts *BlockBasedTableOptions) SetFilterPolicy(fp FilterPolicy) {
 		opts.cFp = nfp.c
 	} else {
 		idx := registerFilterPolicy(fp)
-		opts.cFp = C.gorocksdb_filterpolicy_create(C.uintptr_t(idx))
+		opts.cFp = C.rocksdb_filterpolicy_create_bloom(C.uintptr_t(idx))
 	}
 	C.rocksdb_block_based_options_set_filter_policy(opts.c, opts.cFp)
 }
