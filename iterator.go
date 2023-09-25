@@ -143,7 +143,7 @@ func (iter *Iterator) fetchNextManyKeys(reverse bool, limit int, keyPrefix, keyE
 		cKeyFilter.key_end = cKeyEnd
 		cKeyFilter.key_end_s = C.size_t(len(keyEnd))
 	}
-	return &ManyKeys{c: C.gorocksdb_iter_many_keys(iter.c, C.int(limit), C.int(btoi(reverse)), &cKeyFilter, C.int(ManyKeysPageAllocSize))}
+	return &ManyKeys{c: C.gorocksdb_iter_many_keys(iter.c, C.int(limit), C.bool(reverse), &cKeyFilter, C.int(ManyKeysPageAllocSize))}
 }
 
 // NextManyKeys...
