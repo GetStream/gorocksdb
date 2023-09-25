@@ -99,13 +99,14 @@ func (opts *BlockBasedTableOptions) SetBlockRestartInterval(blockRestartInterval
 // NewBloomFilterPolicy() here.
 // Default: nil
 func (opts *BlockBasedTableOptions) SetFilterPolicy(fp FilterPolicy) {
-	if nfp, ok := fp.(nativeFilterPolicy); ok {
-		opts.cFp = nfp.c
-	} else {
-		idx := registerFilterPolicy(fp)
-		opts.cFp = C.rocksdb_filterpolicy_create_bloom(C.uintptr_t(idx))
-	}
-	C.rocksdb_block_based_options_set_filter_policy(opts.c, opts.cFp)
+	///$$$$$$$$$$$
+	//if nfp, ok := fp.(nativeFilterPolicy); ok {
+	//	opts.cFp = nfp.c
+	//} else {
+	//	idx := registerFilterPolicy(fp)
+	//	opts.cFp = C.gorocksdb_filterpolicy_create(C.uintptr_t(idx))
+	//}
+	//C.rocksdb_block_based_options_set_filter_policy(opts.c, opts.cFp)
 }
 
 // SetNoBlockCache specify whether block cache should be used or not.
