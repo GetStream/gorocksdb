@@ -10,10 +10,10 @@ typedef struct {
 
 } gorocksdb_many_keys_t;
 
-typedef int bool;
+//typedef int bool;
 
-#define FALSE 0
-#define TRUE !FALSE
+//#define FALSE 0
+//#define TRUE !FALSE
 
 // This API provides convenient C wrapper functions for rocksdb client.
 
