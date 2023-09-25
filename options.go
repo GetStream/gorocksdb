@@ -1112,7 +1112,7 @@ func (opts *Options) SetHashLinkListRep(bucketCount int) {
 // indexSparseness: inside each prefix, need to build one index record for how
 //                  many keys for binary search inside each hash bucket.
 func (opts *Options) SetPlainTableFactory(keyLen uint32, bloomBitsPerKey int, hashTableRatio float64, indexSparseness int) {
-	C.rocksdb_options_set_plain_table_factory(opts.c, C.uint32_t(keyLen), C.int(bloomBitsPerKey), C.double(hashTableRatio), C.size_t(indexSparseness))
+	C.rocksdb_options_set_plain_table_factory(opts.c, C.uint32_t(keyLen), C.int(bloomBitsPerKey), C.double(hashTableRatio), C.size_t(indexSparseness), C.ulong(0), C.char(0), C.uchar(0), C.uchar(0))
 }
 
 // SetCreateIfMissingColumnFamilies specifies whether the column families

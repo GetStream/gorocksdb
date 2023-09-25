@@ -46,7 +46,7 @@ func (fp nativeFilterPolicy) Name() string                               { retur
 // FilterPolicy (like NewBloomFilterPolicy) that does not ignore
 // trailing spaces in keys.
 func NewBloomFilter(bitsPerKey int) FilterPolicy {
-	return NewNativeFilterPolicy(C.rocksdb_filterpolicy_create_bloom(C.int(bitsPerKey)))
+	return NewNativeFilterPolicy(C.rocksdb_filterpolicy_create_bloom(C.double(float64(bitsPerKey))))
 }
 
 // Hold references to filter policies.

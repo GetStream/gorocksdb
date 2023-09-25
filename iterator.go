@@ -143,7 +143,7 @@ func (iter *Iterator) fetchNextManyKeys(reverse bool, limit int, keyPrefix, keyE
 		cKeyFilter.key_end = cKeyEnd
 		cKeyFilter.key_end_s = C.size_t(len(keyEnd))
 	}
-	return &ManyKeys{c: C.gorocksdb_iter_many_keys(iter.c, C.int(limit), C.bool(btoi(reverse)), &cKeyFilter, C.int(ManyKeysPageAllocSize))}
+	return &ManyKeys{c: C.gorocksdb_iter_many_keys(iter.c, C.int(limit), C.int(btoi(reverse)), &cKeyFilter, C.int(ManyKeysPageAllocSize))}
 }
 
 // NextManyKeys...
@@ -176,8 +176,8 @@ func (iter *Iterator) ManySearchKeys(searches []KeysSearch) *ManyManyKeys {
 	for i := range searches {
 		cKSearch := C.gorocksdb_keys_search_t{
 			limit:            C.int(searches[i].Limit),
-			reverse:          C.bool(btoi(searches[i].Reverse)),
-			exclude_key_from: C.bool(btoi(searches[i].ExcludeKeyFrom)),
+			reverse:          C.bool(searches[i].Reverse),//$$$$$
+			exclude_key_from: C.bool(searches[i].ExcludeKeyFrom),//$$$$$
 		}
 		cKSearch.key_from = C.CString(string(searches[i].KeyFrom))
 		cKSearch.key_from_s = C.size_t(len(searches[i].KeyFrom))
