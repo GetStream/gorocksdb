@@ -3,6 +3,7 @@ package gorocksdb
 // #include "rocksdb/c.h"
 // #include "gorocksdb.h"
 import "C"
+import "os"
 
 // IndexType specifies the index type that will be used for this table.
 type IndexType uint
@@ -99,6 +100,11 @@ func (opts *BlockBasedTableOptions) SetBlockRestartInterval(blockRestartInterval
 // NewBloomFilterPolicy() here.
 // Default: nil
 func (opts *BlockBasedTableOptions) SetFilterPolicy(fp FilterPolicy) {
+
+	if os.Getenv("FILTER_POLICY_PANIC")!=""{
+		panic("tried using SetFilterPolicy depricated fn")
+	}
+	return
 	///$$$$$$$$$$$
 	//if nfp, ok := fp.(nativeFilterPolicy); ok {
 	//	opts.cFp = nfp.c
