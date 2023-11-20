@@ -1,6 +1,7 @@
 package gorocksdb
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/facebookgo/ensure"
@@ -383,6 +384,52 @@ func TestIteratorManySearchKeys(t *testing.T) {
 	ensure.DeepEqual(t, result[2].Found(), 0)
 	ensure.DeepEqual(t, result[2].Keys(), [][]byte{})
 	ensure.DeepEqual(t, result[2].Values(), [][]byte{})
+}
+func BenchmarkManySearchKeys(t *testing.B) {
+	db := newTestDBB(t, "TestIterator", nil)
+	defer db.Close()
+
+	// insert keys
+	givenKeys := make([][]byte, 0)
+	searches := make([]KeysSearch, 0)
+
+
+	for i:=2000;i<4000;i++{
+		givenKeys = append(givenKeys, []byte(strconv.Itoa(i)))
+		searches = append(searches, KeysSearch{KeyFrom: []byte(strconv.Itoa(i)), Limit: 8000})
+	}
+	wo := NewDefaultWriteOptions()
+	for _, k := range givenKeys {
+		for i:=0;i<8000;i++{
+			pad:=make([]byte, 8000)
+			key:=append(k, pad...)
+			key=append(key, []byte(strconv.Itoa(i))...)
+			ensure.Nil(t, db.Put(wo, key, nil))
+		}
+	}
+
+	ro := NewDefaultReadOptions()
+	iter := db.NewIterator(ro)
+	defer iter.Close()
+
+	t.ResetTimer()
+	for i:=0;i<t.N;i++{
+		manyManyKeys := iter.ManySearchKeys(searches)
+		manyManyKeys.Destroy()
+		result := manyManyKeys.Result()
+		if len(result) != len(searches) {
+			t.Fatalf("result len should be %d", len(searches))
+		}
+	}
+	//ensure.DeepEqual(t, result[0].Found(), 6)
+	//ensure.DeepEqual(t, result[0].Keys(), [][]byte{[]byte("A"), []byte("B"), []byte("C"), []byte("D"), []byte("E"), []byte("F")})
+	//ensure.DeepEqual(t, result[0].Values(), [][]byte{[]byte("val_A"), []byte("val_B"), []byte("val_C"), []byte("val_D"), []byte("val_E"), []byte("val_F")})
+	//ensure.DeepEqual(t, result[1].Found(), 3)
+	//ensure.DeepEqual(t, result[1].Keys(), [][]byte{[]byte("D"), []byte("E"), []byte("F")})
+	//ensure.DeepEqual(t, result[1].Values(), [][]byte{[]byte("val_D"), []byte("val_E"), []byte("val_F")})
+	//ensure.DeepEqual(t, result[2].Found(), 0)
+	//ensure.DeepEqual(t, result[2].Keys(), [][]byte{})
+	//ensure.DeepEqual(t, result[2].Values(), [][]byte{})
 }
 
 func TestIteratorManySearchKeysEmptyKeyFrom(t *testing.T) {

@@ -140,6 +140,23 @@ func newTestDB(t *testing.T, name string, applyOpts func(opts *Options)) *DB {
 
 	return db
 }
+func newTestDBB(t *testing.B, name string, applyOpts func(opts *Options)) *DB {
+	dir, err := ioutil.TempDir("", "gorocksdb-"+name)
+	ensure.Nil(t, err)
+
+	opts := NewDefaultOptions()
+	// test the ratelimiter
+	rateLimiter := NewRateLimiter(1024, 100*1000, 10)
+	opts.SetRateLimiter(rateLimiter)
+	opts.SetCreateIfMissing(true)
+	if applyOpts != nil {
+		applyOpts(opts)
+	}
+	db, err := OpenDb(opts, dir)
+	ensure.Nil(t, err)
+
+	return db
+}
 
 func newTestDBPathNames(t *testing.T, name string, names []string, target_sizes []uint64, applyOpts func(opts *Options)) *DB {
 	ensure.DeepEqual(t, len(target_sizes), len(names))
