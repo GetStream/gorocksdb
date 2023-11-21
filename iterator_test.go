@@ -415,11 +415,11 @@ func BenchmarkManySearchKeys(t *testing.B) {
 	t.ResetTimer()
 	for i:=0;i<t.N;i++{
 		manyManyKeys := iter.ManySearchKeys(searches)
-		manyManyKeys.Destroy()
 		result := manyManyKeys.Result()
 		if len(result) != len(searches) {
 			t.Fatalf("result len should be %d", len(searches))
 		}
+		manyManyKeys.Destroy()
 	}
 	//ensure.DeepEqual(t, result[0].Found(), 6)
 	//ensure.DeepEqual(t, result[0].Keys(), [][]byte{[]byte("A"), []byte("B"), []byte("C"), []byte("D"), []byte("E"), []byte("F")})
