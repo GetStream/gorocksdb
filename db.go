@@ -596,7 +596,8 @@ func (db *DB) GetApproximateSizes(ranges []Range) []uint64 {
 		&cStartLens[0],
 		&cLimits[0],
 		&cLimitLens[0],
-		(*C.uint64_t)(&sizes[0]))
+		(*C.uint64_t)(&sizes[0]),
+		nil)
 
 	return sizes
 }
@@ -638,7 +639,8 @@ func (db *DB) GetApproximateSizesCF(cf *ColumnFamilyHandle, ranges []Range) []ui
 		&cStartLens[0],
 		&cLimits[0],
 		&cLimitLens[0],
-		(*C.uint64_t)(&sizes[0]))
+		(*C.uint64_t)(&sizes[0]),
+		nil)
 
 	return sizes
 }
@@ -749,7 +751,7 @@ func (db *DB) DisableFileDeletions() error {
 // EnableFileDeletions enables file deletions for the database.
 func (db *DB) EnableFileDeletions(force bool) error {
 	var cErr *C.char
-	C.rocksdb_enable_file_deletions(db.c, boolToChar(force), &cErr)
+	C.rocksdb_enable_file_deletions(db.c, &cErr)
 	if cErr != nil {
 		defer C.free(unsafe.Pointer(cErr))
 		return errors.New(C.GoString(cErr))
@@ -763,7 +765,7 @@ func (db *DB) EnableFileDeletions(force bool) error {
 func (db *DB) DeleteFile(name string) {
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
-	C.rocksdb_delete_file(db.c, cName)
+	//C.rocksdb_delete_file(db.c, cName)
 }
 
 // DeleteFileInRange deletes SST files that contain keys between the Range, [r.Start, limitKey]

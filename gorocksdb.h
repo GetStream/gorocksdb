@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdbool.h>
 #include "rocksdb/c.h"
 
 typedef struct {
@@ -10,10 +11,18 @@ typedef struct {
 
 } gorocksdb_many_keys_t;
 
-typedef int bool;
+// Compression types
+#define rocksdb_no_compression 0
+#define rocksdb_snappy_compression 1
+#define rocksdb_zlib_compression 2
+#define rocksdb_bz2_compression 3
+#define rocksdb_lz4_compression 4
+#define rocksdb_lz4hc_compression 5
+#define rocksdb_xpress_compression 6
+#define rocksdb_zstd_compression 7
 
-#define FALSE 0
-#define TRUE !FALSE
+#define FALSE false
+#define TRUE true
 
 // This API provides convenient C wrapper functions for rocksdb client.
 

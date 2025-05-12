@@ -125,12 +125,9 @@ func (opts *BlockBasedTableOptions) SetBlockCache(cache *Cache) {
 	C.rocksdb_block_based_options_set_block_cache(opts.c, cache.c)
 }
 
-// SetBlockCacheCompressed sets the cache for compressed blocks.
-// If nil, rocksdb will not use a compressed block cache.
-// Default: nil
+// SetBlockCacheCompressed is deprecated and has been removed in RocksDB v10.2.1
 func (opts *BlockBasedTableOptions) SetBlockCacheCompressed(cache *Cache) {
-	opts.compCache = cache
-	C.rocksdb_block_based_options_set_block_cache_compressed(opts.c, cache.c)
+	// This function is deprecated and removed in RocksDB v10.2.1
 }
 
 // SetWholeKeyFiltering specify if whole keys in the filter (not just prefixes)

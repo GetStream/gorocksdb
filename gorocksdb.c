@@ -29,13 +29,8 @@ rocksdb_compactionfilter_t* gorocksdb_compactionfilter_create(uintptr_t idx) {
 /* Filter Policy */
 
 rocksdb_filterpolicy_t* gorocksdb_filterpolicy_create(uintptr_t idx) {
-    return rocksdb_filterpolicy_create(
-        (void*)idx,
-        gorocksdb_destruct_handler,
-        (char* (*)(void*, const char* const*, const size_t*, int, size_t*))(gorocksdb_filterpolicy_create_filter),
-        (unsigned char (*)(void*, const char*, size_t, const char*, size_t))(gorocksdb_filterpolicy_key_may_match),
-        gorocksdb_filterpolicy_delete_filter,
-        (const char *(*)(void*))(gorocksdb_filterpolicy_name));
+    // This function is deprecated and removed in RocksDB v10.2.1
+    return NULL;
 }
 
 void gorocksdb_filterpolicy_delete_filter(void* state, const char* v, size_t s) {

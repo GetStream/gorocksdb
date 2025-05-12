@@ -225,7 +225,8 @@ func (opts *Options) SetParanoidChecks(value bool) {
 //
 // For example, you have a flash device with 10GB allocated for the DB,
 // as well as a hard drive of 2TB, you should config it to be:
-//   [{"/flash_path", 10GB}, {"/hard_drive", 2TB}]
+//
+//	[{"/flash_path", 10GB}, {"/hard_drive", 2TB}]
 //
 // The system will try to guarantee data under each path is close to but
 // not larger than the target size. But current and future file sizes used
@@ -476,17 +477,9 @@ func (opts *Options) SetLevel0StopWritesTrigger(value int) {
 	C.rocksdb_options_set_level0_stop_writes_trigger(opts.c, C.int(value))
 }
 
-// SetMaxMemCompactionLevel sets the maximum level
-// to which a new compacted memtable is pushed if it does not create overlap.
-//
-// We try to push to level 2 to avoid the
-// relatively expensive level 0=>1 compactions and to avoid some
-// expensive manifest file operations. We do not push all the way to
-// the largest level since that can generate a lot of wasted disk
-// space if the same key space is being repeatedly overwritten.
-// Default: 2
+// SetMaxMemCompactionLevel is deprecated and has been removed in RocksDB v10.2.1
 func (opts *Options) SetMaxMemCompactionLevel(value int) {
-	C.rocksdb_options_set_max_mem_compaction_level(opts.c, C.int(value))
+	// This function is deprecated and removed in RocksDB v10.2.1
 }
 
 // SetTargetFileSizeBase sets the target file size for compaction.
@@ -531,17 +524,18 @@ func (opts *Options) SetMaxBytesForLevelMultiplier(value float64) {
 	C.rocksdb_options_set_max_bytes_for_level_multiplier(opts.c, C.double(value))
 }
 
-// SetLevelCompactiondynamiclevelbytes specifies whether to pick
+// SetLevelCompactionDynamicLevelBytes specifies whether to pick
 // target size of each level dynamically.
 //
 // We will pick a base level b >= 1. L0 will be directly merged into level b,
 // instead of always into level 1. Level 1 to b-1 need to be empty.
 // We try to pick b and its target size so that
-// 1. target size is in the range of
-//   (max_bytes_for_level_base / max_bytes_for_level_multiplier,
-//    max_bytes_for_level_base]
-// 2. target size of the last level (level num_levels-1) equals to extra size
-//    of the level.
+//  1. target size is in the range of
+//     (max_bytes_for_level_base / max_bytes_for_level_multiplier,
+//     max_bytes_for_level_base]
+//  2. target size of the last level (level num_levels-1) equals to extra size
+//     of the level.
+//
 // At the same time max_bytes_for_level_multiplier and
 // max_bytes_for_level_multiplier_additional are still satisfied.
 //
@@ -730,32 +724,19 @@ func (opts *Options) SetKeepLogFileNum(value int) {
 	C.rocksdb_options_set_keep_log_file_num(opts.c, C.size_t(value))
 }
 
-// SetSoftRateLimit sets the soft rate limit.
-//
-// Puts are delayed 0-1 ms when any level has a compaction score that exceeds
-// soft_rate_limit. This is ignored when == 0.0.
-// CONSTRAINT: soft_rate_limit <= hard_rate_limit. If this constraint does not
-// hold, RocksDB will set soft_rate_limit = hard_rate_limit
-// Default: 0.0 (disabled)
+// SetSoftRateLimit is deprecated and has been removed in RocksDB v10.2.1
 func (opts *Options) SetSoftRateLimit(value float64) {
-	C.rocksdb_options_set_soft_rate_limit(opts.c, C.double(value))
+	// This function is deprecated and removed in RocksDB v10.2.1
 }
 
-// SetHardRateLimit sets the hard rate limit.
-//
-// Puts are delayed 1ms at a time when any level has a compaction score that
-// exceeds hard_rate_limit. This is ignored when <= 1.0.
-// Default: 0.0 (disabled)
+// SetHardRateLimit is deprecated and has been removed in RocksDB v10.2.1
 func (opts *Options) SetHardRateLimit(value float64) {
-	C.rocksdb_options_set_hard_rate_limit(opts.c, C.double(value))
+	// This function is deprecated and removed in RocksDB v10.2.1
 }
 
-// SetRateLimitDelayMaxMilliseconds sets the max time
-// a put will be stalled when hard_rate_limit is enforced.
-// If 0, then there is no limit.
-// Default: 1000
+// SetRateLimitDelayMaxMilliseconds is deprecated and has been removed in RocksDB v10.2.1
 func (opts *Options) SetRateLimitDelayMaxMilliseconds(value uint) {
-	C.rocksdb_options_set_rate_limit_delay_max_milliseconds(opts.c, C.uint(value))
+	// This function is deprecated and removed in RocksDB v10.2.1
 }
 
 // SetMaxManifestFileSize sets the maximal manifest file size until is rolled over.
@@ -771,17 +752,9 @@ func (opts *Options) SetTableCacheNumshardbits(value int) {
 	C.rocksdb_options_set_table_cache_numshardbits(opts.c, C.int(value))
 }
 
-// SetTableCacheRemoveScanCountLimit sets the count limit during a scan.
-//
-// During data eviction of table's LRU cache, it would be inefficient
-// to strictly follow LRU because this piece of memory will not really
-// be released unless its refcount falls to zero. Instead, make two
-// passes: the first pass will release items with refcount = 1,
-// and if not enough space releases after scanning the number of
-// elements specified by this parameter, we will remove items in LRU order.
-// Default: 16
+// SetTableCacheRemoveScanCountLimit is deprecated and has been removed in RocksDB v10.2.1
 func (opts *Options) SetTableCacheRemoveScanCountLimit(value int) {
-	C.rocksdb_options_set_table_cache_remove_scan_count_limit(opts.c, C.int(value))
+	// This function is deprecated and removed in RocksDB v10.2.1
 }
 
 // SetArenaBlockSize sets the size of one block in arena memory allocation.
@@ -804,17 +777,18 @@ func (opts *Options) SetDisableAutoCompactions(value bool) {
 // SetWALTtlSeconds sets the WAL ttl in seconds.
 //
 // The following two options affect how archived logs will be deleted.
-// 1. If both set to 0, logs will be deleted asap and will not get into
-//    the archive.
-// 2. If wal_ttl_seconds is 0 and wal_size_limit_mb is not 0,
-//    WAL files will be checked every 10 min and if total size is greater
-//    then wal_size_limit_mb, they will be deleted starting with the
-//    earliest until size_limit is met. All empty files will be deleted.
-// 3. If wal_ttl_seconds is not 0 and wall_size_limit_mb is 0, then
-//    WAL files will be checked every wal_ttl_seconds / 2 and those that
-//    are older than wal_ttl_seconds will be deleted.
-// 4. If both are not 0, WAL files will be checked every 10 min and both
-//    checks will be performed with ttl being first.
+//  1. If both set to 0, logs will be deleted asap and will not get into
+//     the archive.
+//  2. If wal_ttl_seconds is 0 and wal_size_limit_mb is not 0,
+//     WAL files will be checked every 10 min and if total size is greater
+//     then wal_size_limit_mb, they will be deleted starting with the
+//     earliest until size_limit is met. All empty files will be deleted.
+//  3. If wal_ttl_seconds is not 0 and wall_size_limit_mb is 0, then
+//     WAL files will be checked every wal_ttl_seconds / 2 and those that
+//     are older than wal_ttl_seconds will be deleted.
+//  4. If both are not 0, WAL files will be checked every 10 min and both
+//     checks will be performed with ttl being first.
+//
 // Default: 0
 func (opts *Options) SetWALTtlSeconds(value uint64) {
 	C.rocksdb_options_set_WAL_ttl_seconds(opts.c, C.uint64_t(value))
@@ -840,11 +814,9 @@ func (opts *Options) SetManifestPreallocationSize(value int) {
 	C.rocksdb_options_set_manifest_preallocation_size(opts.c, C.size_t(value))
 }
 
-// SetPurgeRedundantKvsWhileFlush enable/disable purging of
-// duplicate/deleted keys when a memtable is flushed to storage.
-// Default: true
+// SetPurgeRedundantKvsWhileFlush is deprecated and has been removed in RocksDB v10.2.1
 func (opts *Options) SetPurgeRedundantKvsWhileFlush(value bool) {
-	C.rocksdb_options_set_purge_redundant_kvs_while_flush(opts.c, boolToChar(value))
+	// This function is deprecated and removed in RocksDB v10.2.1
 }
 
 // SetAllowMmapReads enable/disable mmap reads for reading sst tables.
@@ -878,12 +850,9 @@ func (opts *Options) SetIsFdCloseOnExec(value bool) {
 	C.rocksdb_options_set_is_fd_close_on_exec(opts.c, boolToChar(value))
 }
 
-// SetSkipLogErrorOnRecovery enable/disable skipping of
-// log corruption error on recovery (If client is ok with
-// losing most recent changes)
-// Default: false
+// SetSkipLogErrorOnRecovery is deprecated and has been removed in RocksDB v10.2.1
 func (opts *Options) SetSkipLogErrorOnRecovery(value bool) {
-	C.rocksdb_options_set_skip_log_error_on_recovery(opts.c, boolToChar(value))
+	// This function is deprecated and removed in RocksDB v10.2.1
 }
 
 // SetStatsDumpPeriodSec sets the stats dump period in seconds.
@@ -915,13 +884,9 @@ func (opts *Options) SetDbWriteBufferSize(value int) {
 	C.rocksdb_options_set_db_write_buffer_size(opts.c, C.size_t(value))
 }
 
-// SetAccessHintOnCompactionStart specifies the file access pattern
-// once a compaction is started.
-//
-// It will be applied to all input files of a compaction.
-// Default: NormalCompactionAccessPattern
+// SetAccessHintOnCompactionStart is deprecated and has been removed in RocksDB v10.2.1
 func (opts *Options) SetAccessHintOnCompactionStart(value CompactionAccessPattern) {
-	C.rocksdb_options_set_access_hint_on_compaction_start(opts.c, C.int(value))
+	// This function is deprecated and removed in RocksDB v10.2.1
 }
 
 // SetUseAdaptiveMutex enable/disable adaptive mutex, which spins
@@ -1012,7 +977,9 @@ func (opts *Options) SetInplaceUpdateNumLocks(value int) {
 // If <=0, it won't allocate from huge page but from malloc.
 // Users are responsible to reserve huge pages for it to be allocated. For
 // example:
-//      sysctl -w vm.nr_hugepages=20
+//
+//	sysctl -w vm.nr_hugepages=20
+//
 // See linux doc Documentation/vm/hugetlbpage.txt
 // If there isn't enough free huge page available, it will fall back to
 // malloc.
@@ -1080,7 +1047,8 @@ func (opts *Options) SetMemtableVectorRep() {
 // bucketCount:             number of fixed array buckets
 // skiplistHeight:          the max height of the skiplist
 // skiplistBranchingFactor: probabilistic size ratio between adjacent
-//                          link lists in the skiplist
+//
+//	link lists in the skiplist
 func (opts *Options) SetHashSkipListRep(bucketCount int, skiplistHeight, skiplistBranchingFactor int32) {
 	C.rocksdb_options_set_hash_skip_list_rep(opts.c, C.size_t(bucketCount), C.int32_t(skiplistHeight), C.int32_t(skiplistBranchingFactor))
 }
@@ -1103,16 +1071,33 @@ func (opts *Options) SetHashLinkListRep(bucketCount int) {
 // a linear search is used.
 //
 // keyLen: 			plain table has optimization for fix-sized keys,
-// 					which can be specified via keyLen.
+//
+//	which can be specified via keyLen.
+//
 // bloomBitsPerKey: the number of bits used for bloom filer per prefix. You
-//                  may disable it by passing a zero.
+//
+//	may disable it by passing a zero.
+//
 // hashTableRatio:  the desired utilization of the hash table used for prefix
-//                  hashing. hashTableRatio = number of prefixes / #buckets
-//                  in the hash table
+//
+//	hashing. hashTableRatio = number of prefixes / #buckets
+//	in the hash table
+//
 // indexSparseness: inside each prefix, need to build one index record for how
-//                  many keys for binary search inside each hash bucket.
+//
+//	many keys for binary search inside each hash bucket.
 func (opts *Options) SetPlainTableFactory(keyLen uint32, bloomBitsPerKey int, hashTableRatio float64, indexSparseness int) {
-	C.rocksdb_options_set_plain_table_factory(opts.c, C.uint32_t(keyLen), C.int(bloomBitsPerKey), C.double(hashTableRatio), C.size_t(indexSparseness))
+	C.rocksdb_options_set_plain_table_factory(
+		opts.c,
+		C.uint32_t(keyLen),
+		C.int(bloomBitsPerKey),
+		C.double(hashTableRatio),
+		C.size_t(indexSparseness),
+		0,          // huge_page_tlb_size (default 0)
+		C.char(0),  // encoding_type (default nil)
+		C.uchar(0), // full_scan_mode (default false)
+		C.uchar(0), // store_index_in_file (default false)
+	)
 }
 
 // SetCreateIfMissingColumnFamilies specifies whether the column families
